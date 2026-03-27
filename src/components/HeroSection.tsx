@@ -449,7 +449,7 @@ const HeroSection = () => {
       </div>
 
       {/* Scroll indicator */}
-      <div className="hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10 sm:hidden lg:flex">
+      <div className="hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10 max-sm:hidden lg:flex">
         <span className="text-xs tracking-widest" style={{ color: "#555" }}>
           Scroll to explore
         </span>
