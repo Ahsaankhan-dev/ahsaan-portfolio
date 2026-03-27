@@ -438,7 +438,7 @@ const HeroSection = () => {
                   style={{
                     width: "100%",
                     height: "100%",
-                    transform: "scale(3.42)",
+                    transform: "scale(2.42)",
                     transformOrigin: "center center",
                   }}
                 />
