@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Spline from "@splinetool/react-spline";
 import * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -14,28 +15,24 @@ const HeroSection = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const frameRef = useRef<number>(0);
+  const splineContainerRef = useRef<HTMLDivElement>(null);
 
   const [ahsaanText, setAhsaanText] = useState("AHSAAN");
   const [subtitle, setSubtitle] = useState("");
   const [showCursor, setShowCursor] = useState(false);
 
-  // ── Three.js Scene ──
+  // ── Three.js Background Scene ──
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // ✅ WebGL support check — crash nahi hoga
     const testCtx = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-    if (!testCtx) {
-      console.warn("WebGL not supported — skipping 3D background.");
-      return;
-    }
+    if (!testCtx) return;
 
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: "low-power" });
     } catch (e) {
-      console.warn("WebGLRenderer failed:", e);
       return;
     }
 
@@ -47,14 +44,12 @@ const HeroSection = () => {
     const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.z = 5;
 
-    // Main Icosahedron (wireframe)
     const ico = new THREE.Mesh(
       new THREE.IcosahedronGeometry(1.5, 1),
       new THREE.MeshPhongMaterial({ color: 0x00ffff, wireframe: true, opacity: 0.18, transparent: true })
     );
     scene.add(ico);
 
-    // Outer Torus
     const torus1 = new THREE.Mesh(
       new THREE.TorusGeometry(2.7, 0.45, 8, 70),
       new THREE.MeshPhongMaterial({ color: 0x9333ea, wireframe: true, opacity: 0.08, transparent: true })
@@ -62,7 +57,6 @@ const HeroSection = () => {
     torus1.rotation.x = Math.PI / 2.4;
     scene.add(torus1);
 
-    // Inner Torus
     const torus2 = new THREE.Mesh(
       new THREE.TorusGeometry(1.9, 0.15, 6, 55),
       new THREE.MeshPhongMaterial({ color: 0x00ffff, wireframe: true, opacity: 0.08, transparent: true })
@@ -70,10 +64,8 @@ const HeroSection = () => {
     torus2.rotation.y = Math.PI / 3;
     scene.add(torus2);
 
-    // Floating Spheres
     const sphereColors = [0x00ffff, 0x9333ea, 0x22c55e, 0xf59e0b, 0x00ffff, 0x9333ea];
     const floatingSpheres: { mesh: THREE.Mesh; speed: number; phase: number; baseY: number; baseX: number }[] = [];
-
     sphereColors.forEach((color, i) => {
       const r = 0.08 + Math.random() * 0.12;
       const mesh = new THREE.Mesh(
@@ -87,14 +79,12 @@ const HeroSection = () => {
       scene.add(mesh);
     });
 
-    // Particles
     const pGeo = new THREE.BufferGeometry();
     const pts: number[] = [];
     for (let i = 0; i < 600; i++) pts.push((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 10);
     pGeo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
     scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0x00ffff, size: 0.02, opacity: 0.3, transparent: true })));
 
-    // Lights
     scene.add(new THREE.AmbientLight(0xffffff, 0.4));
     const dl = new THREE.DirectionalLight(0x00ffff, 1);
     dl.position.set(3, 3, 4);
@@ -103,7 +93,6 @@ const HeroSection = () => {
     pl.position.set(-3, 2, 2);
     scene.add(pl);
 
-    // Mouse parallax
     let mx = 0, my = 0;
     const onMouse = (e: MouseEvent) => {
       mx = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -111,7 +100,6 @@ const HeroSection = () => {
     };
     window.addEventListener("mousemove", onMouse);
 
-    // Resize
     const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -119,24 +107,20 @@ const HeroSection = () => {
     };
     window.addEventListener("resize", onResize);
 
-    // Animate
     const animate = (t = 0) => {
       frameRef.current = requestAnimationFrame(animate);
       const time = t * 0.001;
-
       ico.rotation.x = time * 0.00023 + my * 0.22;
       ico.rotation.y = time * 0.00028 + mx * 0.22;
       torus1.rotation.z = time * 0.00013;
       torus1.rotation.x = Math.PI / 2.4 + my * 0.07;
       torus2.rotation.x = time * 0.00018;
       torus2.rotation.z = -time * 0.00013 + mx * 0.07;
-
       floatingSpheres.forEach(({ mesh, speed, phase, baseY, baseX }) => {
         mesh.position.y = baseY + Math.sin(time * speed + phase) * 0.3;
         mesh.position.x = baseX + mx * 0.2;
         mesh.rotation.y = time * 0.5;
       });
-
       renderer.render(scene, camera);
     };
     animate();
@@ -172,7 +156,6 @@ const HeroSection = () => {
     });
 
     tl.fromTo(".hero-subtitle-wrap", { opacity: 0 }, { opacity: 1, duration: 0.5 }, "+=0.5");
-
     tl.add(() => {
       const text = "A Full Stack DEVELOPER & ENGINEER";
       let i = 0;
@@ -186,8 +169,8 @@ const HeroSection = () => {
 
     tl.fromTo(".hero-buttons", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.7)" }, "+=0.3");
     tl.fromTo(".hero-scroll", { opacity: 0 }, { opacity: 1, duration: 0.5 }, "-=0.2");
+    tl.fromTo(".hero-spline", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.8, ease: "power2.out" }, "-=0.8");
 
-    // Parallax on scroll
     gsap.to(".hero-m", {
       x: -40,
       scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
@@ -196,97 +179,182 @@ const HeroSection = () => {
       x: 40,
       scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
     });
+    gsap.to(".hero-spline", {
+      y: 60,
+      scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
+    });
 
     return () => { tl.kill(); };
   }, []);
 
+  // Spline load hone ke baad scale adjust karne ke liye
+  const onSplineLoad = (splineApp: any) => {
+    try {
+      // Spline object ko access karke zoom/position adjust karna
+      if (splineApp && splineApp._object) {
+        const obj = splineApp._object;
+        
+        // Camera zoom out karne ke liye
+        if (obj.camera) {
+          // Agar camera available hai toh zoom out
+          if (obj.camera.zoom) {
+            obj.camera.zoom = 0.7; // Zoom out
+            obj.camera.updateProjectionMatrix();
+          }
+          
+          // Camera position adjust
+          if (obj.camera.position) {
+            obj.camera.position.z = 8; // Camera door le jao
+            obj.camera.position.y = 1;
+          }
+        }
+        
+        // Scene scale adjust
+        if (obj.scene) {
+          obj.scene.scale.set(0.8, 0.8, 0.8);
+          obj.scene.position.y = -0.5;
+        }
+      }
+      
+      // Alternative: container mein zoom effect
+      if (splineContainerRef.current) {
+        splineContainerRef.current.style.transform = "scale(0.85)";
+        splineContainerRef.current.style.transformOrigin = "center center";
+      }
+    } catch (error) {
+      console.log("Spline adjustment error:", error);
+    }
+  };
+
   return (
     <section ref={sectionRef} id="hero" className="relative min-h-screen overflow-hidden">
 
-      {/* Three.js Canvas — full background */}
+      {/* Three.js Canvas */}
       <canvas
         ref={canvasRef}
-        style={{
-          position: "absolute",
-          top: 0, left: 0,
-          width: "100%", height: "100%",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}
       />
 
-      {/* Dark gradient overlay — left side readable */}
+      {/* Dark gradient overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "linear-gradient(to right, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.85) 40%, rgba(8,8,8,0.2) 70%, transparent 100%)",
+          background: "linear-gradient(to right, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.85) 35%, rgba(8,8,8,0.3) 60%, transparent 100%)",
           zIndex: 1,
         }}
       />
 
-      {/* Left content */}
+      {/* Main layout */}
       <div className="relative z-10 flex items-center min-h-screen pt-16">
         <div className="max-w-7xl mx-auto px-6 w-full">
-          <div className="max-w-lg">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 min-h-[calc(100vh-4rem)]">
 
-            {/* Badge */}
+            {/* ── LEFT — Text Content ── */}
+            <div className="max-w-lg w-full flex-shrink-0 py-16 md:py-0 z-20">
+              <div
+                className="hero-badge inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium mb-6 opacity-0"
+                style={{ border: "1px solid #1a1a1a", color: "#888" }}
+              >
+              </div>
+
+              <div className="hero-hello text-lg mb-2 opacity-0" style={{ color: "#00FFFF" }}>
+                Hello! I&apos;m
+              </div>
+
+              <h1 className="hero-m text-[80px] md:text-[120px] font-black leading-none opacity-0" style={{ color: "#fff" }}>
+                M
+              </h1>
+
+              <h1 className="hero-ahsaan text-[80px] md:text-[120px] font-black leading-none text-glow-cyan" style={{ color: "#00FFFF" }}>
+                {ahsaanText}
+              </h1>
+
+              <div className="hero-subtitle-wrap mt-4 text-lg md:text-xl opacity-0">
+                <span className={showCursor ? "typing-cursor" : ""}>
+                  {subtitle.split(/(\bDEVELOPER\b|\bENGINEER\b|&)/).map((part, i) =>
+                    part === "DEVELOPER" || part === "ENGINEER" ? (
+                      <span key={i} className="font-bold" style={{ color: "#fff" }}>{part}</span>
+                    ) : part === "&" ? (
+                      <span key={i} style={{ color: "#00FFFF" }}> {part} </span>
+                    ) : (
+                      <span key={i} style={{ color: "#888" }}>{part}</span>
+                    )
+                  )}
+                </span>
+              </div>
+
+              <div className="hero-buttons flex gap-4 mt-8 opacity-0">
+                <a
+                  href="#work"
+                  className="magnetic-btn px-6 py-3 rounded-lg text-sm font-semibold tracking-wider transition-all duration-300 hover:bg-site-cyan hover:text-black"
+                  style={{ border: "1px solid #1a1a1a", color: "#fff" }}
+                >
+                  VIEW WORK ↓
+                </a>
+                <a
+                  href="#contact"
+                  className="magnetic-btn px-6 py-3 rounded-lg text-sm font-semibold tracking-wider transition-all duration-300 hover:opacity-90"
+                  style={{ background: "#00FFFF", color: "#080808" }}
+                >
+                  RESUME →
+                </a>
+              </div>
+
+              <div className="mt-12 text-xs" style={{ color: "#555" }}>© 2026</div>
+            </div>
+
+            {/* ── RIGHT — Spline Robot (Fixed Zoom & Cutoff Issue) ── */}
             <div
-              className="hero-badge inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium mb-6 opacity-0"
-              style={{ border: "1px solid #1a1a1a", color: "#888" }}
+              ref={splineContainerRef}
+              className="hero-spline opacity-0 relative flex-1 w-full"
+              style={{ 
+                height: "clamp(450px, 80vh, 800px)", 
+                minWidth: 0, 
+                maxWidth: "750px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
             >
-              <span className="w-2 h-2 rounded-full blink-green" style={{ background: "#22c55e" }} />
-              AVAILABLE FOR WORK
-            </div>
-
-            {/* Hello */}
-            <div className="hero-hello text-lg mb-2 opacity-0" style={{ color: "#00FFFF" }}>
-              Hello! I&apos;m
-            </div>
-
-            {/* M */}
-            <h1 className="hero-m text-[80px] md:text-[120px] font-black leading-none opacity-0" style={{ color: "#fff" }}>
-              M
-            </h1>
-
-            {/* AHSAAN */}
-            <h1 className="hero-ahsaan text-[80px] md:text-[120px] font-black leading-none text-glow-cyan" style={{ color: "#00FFFF" }}>
-              {ahsaanText}
-            </h1>
-
-            {/* Subtitle */}
-            <div className="hero-subtitle-wrap mt-4 text-lg md:text-xl opacity-0">
-              <span className={showCursor ? "typing-cursor" : ""}>
-                {subtitle.split(/(\bDEVELOPER\b|\bENGINEER\b|&)/).map((part, i) =>
-                  part === "DEVELOPER" || part === "ENGINEER" ? (
-                    <span key={i} className="font-bold" style={{ color: "#fff" }}>{part}</span>
-                  ) : part === "&" ? (
-                    <span key={i} style={{ color: "#00FFFF" }}> {part} </span>
-                  ) : (
-                    <span key={i} style={{ color: "#888" }}>{part}</span>
-                  )
-                )}
-              </span>
-            </div>
-
-            {/* Buttons */}
-            <div className="hero-buttons flex gap-4 mt-8 opacity-0">
-              <a
-                href="#work"
-                className="magnetic-btn px-6 py-3 rounded-lg text-sm font-semibold tracking-wider transition-all duration-300 hover:bg-site-cyan hover:text-black"
-                style={{ border: "1px solid #1a1a1a", color: "#fff" }}
+              {/* Cyan glow behind robot - Extended for better visibility */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: "radial-gradient(ellipse at 50% 50%, rgba(0,255,255,0.12) 0%, rgba(0,255,255,0.05) 40%, transparent 80%)",
+                  zIndex: 0,
+                  borderRadius: "50%",
+                  transform: "scale(1.2)"
+                }}
+              />
+              
+              {/* Spline Robot Container with proper sizing */}
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  marginLeft: "10%",
+                  position: "relative",
+                  zIndex: 1,
+                  filter: "hue-rotate(180deg) saturate(1.8) brightness(1.1) drop-shadow(0 0 40px rgba(0,255,255,0.4))",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
               >
-                VIEW WORK ↓
-              </a>
-              <a
-                href="#contact"
-                className="magnetic-btn px-6 py-3 rounded-lg text-sm font-semibold tracking-wider transition-all duration-300 hover:opacity-90"
-                style={{ background: "#00FFFF", color: "#080808" }}
-              >
-                RESUME →
-              </a>
+                <Spline 
+                  scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode"
+                  onLoad={onSplineLoad}
+                  style={{
+                    width: "150%",
+                    height: "150%",
+                    objectFit: "contain",
+                    transform: "scale(0.9)",
+                    transformOrigin: "center center"
+                  }}
+                />
+              </div>
             </div>
 
-            <div className="mt-12 text-xs" style={{ color: "#555" }}>© 2026</div>
           </div>
         </div>
       </div>
@@ -298,6 +366,33 @@ const HeroSection = () => {
           <path d="M12 5v14M5 12l7 7 7-7" />
         </svg>
       </div>
+
+      {/* Add custom CSS for animations */}
+      <style jsx>{`
+        @keyframes scroll-bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(10px); }
+        }
+        .animate-scroll-bounce {
+          animation: scroll-bounce 2s infinite;
+        }
+        .blink-green {
+          animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        .typing-cursor::after {
+          content: '|';
+          animation: blink 1s infinite;
+          margin-left: 2px;
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+      `}</style>
     </section>
   );
 };

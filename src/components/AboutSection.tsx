@@ -1,39 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import Spline from "@splinetool/react-spline";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "spline-viewer": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & { url: string },
-        HTMLElement
-      >;
-    }
-  }
-}
-
 const AboutSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const [splineReady, setSplineReady] = useState(false);
-
-  useEffect(() => {
-    if (document.querySelector('script[data-spline]')) {
-      setSplineReady(true);
-    } else {
-      const check = setInterval(() => {
-        if (document.querySelector('script[data-spline]')) {
-          setSplineReady(true);
-          clearInterval(check);
-        }
-      }, 200);
-      return () => clearInterval(check);
-    }
-  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -64,16 +39,18 @@ const AboutSection = () => {
               background: "radial-gradient(circle at 50% 60%, rgba(0,255,255,0.08) 0%, transparent 70%)",
             }}
           />
-          {splineReady ? (
-            <spline-viewer
-              url="https://prod.spline.design/Ub2ksGkNrglaxYLi/scene.splinecode"
-              style={{ width: "100%", height: "100%", position: "relative", zIndex: 1 }}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="text-xs font-mono" style={{ color: "#555" }}>Loading 3D...</div>
-            </div>
-          )}
+          {/* Spline Robot — cyan filter */}
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              position: "relative",
+              zIndex: 1,
+              filter: "hue-rotate(180deg) saturate(2) brightness(1.15) drop-shadow(0 0 32px rgba(0,255,255,0.35))",
+            }}
+          >
+            <Spline scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode" />
+          </div>
         </div>
 
         {/* ── Right — Text ── */}

@@ -1,22 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import Spline from "@splinetool/react-spline";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import TiltCard from "./TiltCard";
 
 gsap.registerPlugin(ScrollTrigger);
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "spline-viewer": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & { url: string },
-        HTMLElement
-      >;
-    }
-  }
-}
 
 const SERVICES = [
   {
@@ -41,26 +31,9 @@ const SERVICES = [
 
 const ServicesSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const [splineReady, setSplineReady] = useState(false);
-
-  useEffect(() => {
-    // Reuse script if already loaded
-    if (document.querySelector('script[data-spline]')) {
-      setSplineReady(true);
-    } else {
-      const check = setInterval(() => {
-        if (document.querySelector('script[data-spline]')) {
-          setSplineReady(true);
-          clearInterval(check);
-        }
-      }, 200);
-      return () => clearInterval(check);
-    }
-  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Watermark parallax
       gsap.fromTo(
         ".service-watermark",
         { scale: 1.2, opacity: 0.03 },
@@ -69,7 +42,6 @@ const ServicesSection = () => {
           scrollTrigger: { trigger: sectionRef.current, start: "top 80%", end: "bottom 20%", scrub: 1 },
         }
       );
-      // Cards slide in
       gsap.fromTo(
         ".service-card",
         { opacity: 0, x: 60 },
@@ -78,7 +50,6 @@ const ServicesSection = () => {
           scrollTrigger: { trigger: sectionRef.current, start: "top 70%" },
         }
       );
-      // Watermark text
       gsap.fromTo(
         ".service-what",
         { opacity: 0, x: -50 },
@@ -95,7 +66,7 @@ const ServicesSection = () => {
     <section ref={sectionRef} id="services" className="py-24 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
 
-        {/* ── Left — Spline Desk Robot ── */}
+        {/* ── Left — Spline Robot ── */}
         <div className="relative min-h-[480px] flex items-center justify-center">
 
           {/* "WHAT I DO" watermark */}
@@ -107,19 +78,14 @@ const ServicesSection = () => {
             <span style={{ color: "#00FFFF" }}>I DO</span>
           </div>
 
-          {/* Spline robot at desk */}
-          <div className="relative z-10 w-full h-[420px] md:h-[500px]">
-            {splineReady && (
-              <spline-viewer
-                url="https://prod.spline.design/Ub2ksGkNrglaxYLi/scene.splinecode"
-                style={{ width: "100%", height: "100%" }}
-              />
-            )}
-            {!splineReady && (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="text-xs font-mono" style={{ color: "#555" }}>Loading 3D...</div>
-              </div>
-            )}
+          {/* Spline Robot — cyan filter */}
+          <div
+            className="relative z-10 w-full h-[420px] md:h-[500px]"
+            style={{
+              filter: "hue-rotate(180deg) saturate(2) brightness(1.15) drop-shadow(0 0 32px rgba(0,255,255,0.35))",
+            }}
+          >
+            <Spline scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode" />
           </div>
         </div>
 
