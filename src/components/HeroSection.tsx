@@ -396,7 +396,7 @@ const HeroSection = () => {
                 </a>
               </div>
 
-              <div className="mt-8 sm:mt-12 text-xs sm:hidden lg:block" style={{ color: "#555" }}>
+              <div className="mt-8 sm:mt-12 text-xs max-sm:hidden lg:block" style={{ color: "#555" }}>
                 © 2026
               </div>
             </div>
