@@ -164,6 +164,7 @@ const HeroSection = () => {
   const onSplineLoad = (splineApp: any) => {
     try {
       if (splineContainerRef.current) {
+        splineContainerRef.current.style.transform = "scale(0.85)";
         splineContainerRef.current.style.transformOrigin = "center center";
       }
     } catch (error) {}
@@ -246,17 +247,12 @@ const HeroSection = () => {
               <div className="mt-8 sm:mt-12 text-xs" style={{ color: "#555" }}>© 2026</div>
             </div>
 
-            {/* RIGHT — Spline Robot */}
+            {/* RIGHT — Spline (hidden on mobile, visible on lg+) */}
             <div
               ref={splineContainerRef}
               className="hero-spline opacity-0 relative w-full lg:flex-1 hidden sm:flex items-center justify-center"
-              style={{
-                height: "clamp(300px, 60vh, 600px)",
-                maxWidth: "500px",
-                margin: "0 auto",
-              }}
+              style={{ height: "clamp(350px, 70vh, 800px)", maxWidth: "750px" }}
             >
-              {/* Glow */}
               <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
@@ -264,29 +260,17 @@ const HeroSection = () => {
                   zIndex: 0,
                 }}
               />
-
-              {/* Spline */}
               <div
                 style={{
-                  width: "100%",
-                  height: "100%",
-                  position: "relative",
-                  zIndex: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  width: "100%", height: "100%",
+                  position: "relative", zIndex: 1,
                   filter: "hue-rotate(180deg) saturate(1.8) brightness(1.1) drop-shadow(0 0 40px rgba(0,255,255,0.4))",
                 }}
               >
                 <SafeSpline
                   scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode"
                   onLoad={onSplineLoad}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    transform: "scale(0.72)",
-                    transformOrigin: "center center",
-                  }}
+                  style={{ width: "100%", height: "100%" }}
                 />
               </div>
             </div>
@@ -295,7 +279,6 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Scroll indicator */}
       <div className="hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10">
         <span className="text-xs tracking-widest" style={{ color: "#555" }}>Scroll to explore</span>
         <svg className="w-5 h-5 animate-scroll-bounce" fill="none" stroke="#00FFFF" strokeWidth="2" viewBox="0 0 24 24">
