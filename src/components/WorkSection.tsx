@@ -42,30 +42,33 @@ const WorkSection = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} id="work" className="py-24">
-      <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-3xl md:text-5xl font-bold mb-16">
+    <section ref={sectionRef} id="work" className="py-16 sm:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-10 sm:mb-16">
           <span style={{ color: "#fff" }}>Selected </span>
           <span className="italic" style={{ color: "#00FFFF" }}>work</span>
         </h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {/* 1 col mobile, 2 col sm, 3 col lg */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {PROJECTS.map((p, i) => (
             <TiltCard
               key={i}
-              className="work-card opacity-0 p-6 rounded-xl"
+              className="work-card opacity-0 p-4 sm:p-6 rounded-xl"
               style={{ background: "#111", border: "1px solid #1a1a1a" }}
             >
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-start mb-3 sm:mb-4">
                 <span className="font-mono text-xs" style={{ color: "#555" }}>{p.year}</span>
                 <span style={{ color: "#555" }}>↗</span>
               </div>
-              <h3 className="text-xl font-bold mb-2" style={{ color: "#fff" }}>{p.title}</h3>
-              <p className="text-sm leading-relaxed mb-4" style={{ color: "#888" }}>{p.desc}</p>
-              <div className="flex flex-wrap gap-2">
+              <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: "#fff" }}>{p.title}</h3>
+              <p className="text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4" style={{ color: "#888" }}>{p.desc}</p>
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {p.tags.map((t) => (
                   <span
                     key={t}
-                    className="px-3 py-1 rounded-full text-[10px] font-medium tracking-wider"
+                    className="px-2 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-medium tracking-wider"
                     style={{ background: "#1a1a1a", color: "#888" }}
                   >
                     {t}
@@ -75,6 +78,7 @@ const WorkSection = () => {
             </TiltCard>
           ))}
         </div>
+
       </div>
     </section>
   );
