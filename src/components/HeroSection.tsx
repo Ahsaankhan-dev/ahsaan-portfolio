@@ -301,9 +301,6 @@ const HeroSection = () => {
                   RESUME →
                 </a>
               </div>
-
-              {/* Copyright - Hidden on mobile */}
-              <div className="max-sm:hidden mt-12 text-xs" style={{ color: "#555" }}>© 2026</div>
             </div>
 
             {/* ── RIGHT — Spline Robot - Hidden on mobile ── */}
@@ -367,7 +364,7 @@ const HeroSection = () => {
       </div>
 
       {/* Scroll indicator - Hidden on mobile */}
-      <div className="max-sm:hidden hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10">
+      <div className="hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10 max-sm:hidden lg:block">
         <span className="text-xs tracking-widest" style={{ color: "#555" }}>Scroll to explore</span>
         <svg className="w-5 h-5 animate-scroll-bounce" fill="none" stroke="#00FFFF" strokeWidth="2" viewBox="0 0 24 24">
           <path d="M12 5v14M5 12l7 7 7-7" />
