@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 
 const SOCIALS = [
-  { name: "GitHub", url: "https://github.com" },
-  { name: "LinkedIn", url: "https://linkedin.com" },
+  { name: "GitHub", url: "https://github.com/Ahsaankhan-dev" },
+  { name: "LinkedIn", url: "https://www.linkedin.com/in/ahsaan-khan-53a5653aa/" },
   { name: "Twitter", url: "https://twitter.com" },
 ];
 

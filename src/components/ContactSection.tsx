@@ -51,7 +51,7 @@ const ContactSection = () => {
           className="contact-email inline-block mt-8 text-sm tracking-[3px] uppercase transition-colors duration-300 opacity-0 relative group"
           style={{ color: "#888" }}
         >
-          <span className="group-hover:text-site-cyan transition-colors duration-300">HELLO@MAHSAAN.DEV</span>
+          <span className="group-hover:text-site-cyan transition-colors duration-300">ahsaankhan.dev@gmail.com</span>
           <span
             className="absolute bottom-0 left-0 w-full h-px scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"
             style={{ background: "#00FFFF" }}
