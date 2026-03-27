@@ -1,12 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const CustomCursor = () => {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
+    // Skip on mobile devices
+    if (isMobile) return;
+    
     if (typeof window === "undefined") return;
     // Skip on touch / mobile devices — no fine pointer
     if (!window.matchMedia("(pointer: fine)").matches) return;
@@ -66,7 +71,10 @@ const CustomCursor = () => {
       cancelAnimationFrame(rafId);
       clearTimeout(t);
     };
-  }, []);
+  }, [isMobile]);
+
+  // Don't render anything on mobile
+  if (isMobile) return null;
 
   return (
     <>
