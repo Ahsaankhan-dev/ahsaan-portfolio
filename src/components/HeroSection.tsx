@@ -396,7 +396,7 @@ const HeroSection = () => {
                 </a>
               </div>
 
-              <div className="mt-8 sm:mt-12 text-xs" style={{ color: "#555" }}>
+              <div className="mt-8 sm:mt-12 text-xs sm:hidden lg:block" style={{ color: "#555" }}>
                 © 2026
               </div>
             </div>
@@ -404,7 +404,7 @@ const HeroSection = () => {
             {/* RIGHT — Spline Robot */}
             <div
               ref={splineContainerRef}
-              className="hero-spline opacity-0 relative w-full lg:flex-1 hidden sm:flex items-center justify-center"
+              className="hero-spline opacity-0 relative w-full lg:flex-1 hidden items-center justify-center sm:hidden lg:flex"
               style={{
                 height: "clamp(300px, 60vh, 600px)",
                 maxWidth: "500px",
@@ -449,7 +449,7 @@ const HeroSection = () => {
       </div>
 
       {/* Scroll indicator */}
-      <div className="hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10">
+      <div className="hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10 sm:hidden lg:flex">
         <span className="text-xs tracking-widest" style={{ color: "#555" }}>
           Scroll to explore
         </span>
