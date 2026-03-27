@@ -33,24 +33,22 @@ const AboutSection = () => {
         {/* Grid — stacks on mobile, side by side on md+ */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
 
-          {/* LEFT — Spline Robot - Hidden on mobile, visible on desktop */}
-          {!isMobile && (
-            <div className="about-avatar opacity-0 relative h-[300px] sm:h-[400px] md:h-[520px]">
-              <div
-                className="absolute inset-0 pointer-events-none z-0"
-                style={{ background: "radial-gradient(circle at 50% 60%, rgba(0,255,255,0.08) 0%, transparent 70%)" }}
-              />
-              <div
-                style={{
-                  width: "100%", height: "100%",
-                  position: "relative", zIndex: 1,
-                  filter: "hue-rotate(180deg) saturate(2) brightness(1.15) drop-shadow(0 0 32px rgba(0,255,255,0.35))",
-                }}
-              >
-                <SafeSpline scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode" />
-              </div>
+          {/* LEFT — Spline Robot - Hidden on mobile using max-sm:hidden */}
+          <div className="max-sm:hidden about-avatar opacity-0 relative h-[300px] sm:h-[400px] md:h-[520px]">
+            <div
+              className="absolute inset-0 pointer-events-none z-0"
+              style={{ background: "radial-gradient(circle at 50% 60%, rgba(0,255,255,0.08) 0%, transparent 70%)" }}
+            />
+            <div
+              style={{
+                width: "100%", height: "100%",
+                position: "relative", zIndex: 1,
+                filter: "hue-rotate(180deg) saturate(2) brightness(1.15) drop-shadow(0 0 32px rgba(0,255,255,0.35))",
+              }}
+            >
+              {!isMobile && <SafeSpline scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode" />}
             </div>
-          )}
+          </div>
 
           {/* RIGHT — Text */}
           <div className="about-content opacity-0 text-center md:text-left">

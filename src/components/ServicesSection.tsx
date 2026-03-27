@@ -67,27 +67,25 @@ const ServicesSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
 
-          {/* LEFT — Spline: Hidden on mobile, visible on desktop */}
-          {!isMobile && (
-            <div className="relative min-h-[300px] md:min-h-[480px] hidden md:flex items-center justify-center order-2 md:order-1">
-              <div
-                className="service-what absolute inset-0 flex flex-col justify-center text-[80px] md:text-[140px] font-black leading-none select-none pointer-events-none z-0"
-                style={{ color: "#fff", opacity: 0 }}
-              >
-                <span>WHAT</span>
-                <span style={{ color: "#00FFFF" }}>I DO</span>
-              </div>
-              <div
-                className="relative z-10 w-full h-[420px] md:h-[500px]"
-                style={{
-                  filter:
-                    "hue-rotate(180deg) saturate(2) brightness(1.15) drop-shadow(0 0 32px rgba(0,255,255,0.35))",
-                }}
-              >
-                <SafeSpline scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode" />
-              </div>
+          {/* LEFT — Spline: Hidden on mobile using max-sm:hidden */}
+          <div className="max-sm:hidden relative min-h-[300px] md:min-h-[480px] hidden md:flex items-center justify-center order-2 md:order-1">
+            <div
+              className="service-what absolute inset-0 flex flex-col justify-center text-[80px] md:text-[140px] font-black leading-none select-none pointer-events-none z-0"
+              style={{ color: "#fff", opacity: 0 }}
+            >
+              <span>WHAT</span>
+              <span style={{ color: "#00FFFF" }}>I DO</span>
             </div>
-          )}
+            <div
+              className="relative z-10 w-full h-[420px] md:h-[500px]"
+              style={{
+                filter:
+                  "hue-rotate(180deg) saturate(2) brightness(1.15) drop-shadow(0 0 32px rgba(0,255,255,0.35))",
+              }}
+            >
+              {!isMobile && <SafeSpline scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode" />}
+            </div>
+          </div>
 
           {/* RIGHT — Cards */}
           <div className="flex flex-col gap-4 sm:gap-6 relative z-10 order-1 md:order-2">

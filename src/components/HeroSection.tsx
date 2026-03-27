@@ -173,21 +173,23 @@ const HeroSection = () => {
     tl.fromTo(".hero-scroll", { opacity: 0 }, { opacity: 1, duration: 0.5 }, "-=0.2");
     tl.fromTo(".hero-spline", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.8, ease: "power2.out" }, "-=0.8");
 
-    gsap.to(".hero-m", {
-      x: -40,
-      scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
-    });
-    gsap.to(".hero-ahsaan", {
-      x: 40,
-      scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
-    });
-    gsap.to(".hero-spline", {
-      y: 60,
-      scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
-    });
+    if (!isMobile) {
+      gsap.to(".hero-m", {
+        x: -40,
+        scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
+      });
+      gsap.to(".hero-ahsaan", {
+        x: 40,
+        scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
+      });
+      gsap.to(".hero-spline", {
+        y: 60,
+        scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
+      });
+    }
 
     return () => { tl.kill(); };
-  }, []);
+  }, [isMobile]);
 
   // Spline load hone ke baad scale adjust karne ke liye
   const onSplineLoad = (splineApp: any) => {
@@ -225,17 +227,21 @@ const HeroSection = () => {
   return (
     <section ref={sectionRef} id="hero" className="relative min-h-screen overflow-hidden">
 
-      {/* Three.js Canvas */}
-      <canvas
-        ref={canvasRef}
-        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}
-      />
+      {/* Three.js Canvas - Hidden on mobile to improve performance */}
+      {!isMobile && (
+        <canvas
+          ref={canvasRef}
+          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}
+        />
+      )}
 
       {/* Dark gradient overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "linear-gradient(to right, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.85) 35%, rgba(8,8,8,0.3) 60%, transparent 100%)",
+          background: isMobile 
+            ? "linear-gradient(to right, rgba(8,8,8,0.98) 0%, rgba(8,8,8,0.95) 100%)"
+            : "linear-gradient(to right, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.85) 35%, rgba(8,8,8,0.3) 60%, transparent 100%)",
           zIndex: 1,
         }}
       />
@@ -266,7 +272,7 @@ const HeroSection = () => {
               </h1>
 
               <div className="hero-subtitle-wrap mt-4 text-lg md:text-xl opacity-0">
-                <span className={showCursor ? "typing-cursor" : ""}>
+                <span className={showCursor && !isMobile ? "typing-cursor" : ""}>
                   {subtitle.split(/(\bDEVELOPER\b|\bENGINEER\b|&)/).map((part, i) =>
                     part === "DEVELOPER" || part === "ENGINEER" ? (
                       <span key={i} className="font-bold" style={{ color: "#fff" }}>{part}</span>
@@ -296,69 +302,72 @@ const HeroSection = () => {
                 </a>
               </div>
 
-              <div className="mt-12 text-xs" style={{ color: "#555" }}>© 2026</div>
+              {/* Copyright - Hidden on mobile */}
+              <div className="max-sm:hidden mt-12 text-xs" style={{ color: "#555" }}>© 2026</div>
             </div>
 
-            {/* ── RIGHT — Spline Robot - Hidden on mobile, visible on desktop ── */}
-            {!isMobile && (
-              <div
-                ref={splineContainerRef}
-                className="hero-spline opacity-0 relative flex-1 w-full"
-                style={{ 
-                  height: "clamp(450px, 80vh, 800px)", 
-                  minWidth: 0, 
-                  maxWidth: "750px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center"
-                }}
-              >
-                {/* Cyan glow behind robot */}
+            {/* ── RIGHT — Spline Robot - Hidden on mobile ── */}
+            <div className="max-sm:hidden">
+              {!isMobile && (
                 <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background: "radial-gradient(ellipse at 50% 50%, rgba(0,255,255,0.12) 0%, rgba(0,255,255,0.05) 40%, transparent 80%)",
-                    zIndex: 0,
-                    borderRadius: "50%",
-                    transform: "scale(1.2)"
-                  }}
-                />
-                
-                {/* Spline Robot Container */}
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    marginLeft: "10%",
-                    position: "relative",
-                    zIndex: 1,
-                    filter: "hue-rotate(180deg) saturate(1.8) brightness(1.1) drop-shadow(0 0 40px rgba(0,255,255,0.4))",
+                  ref={splineContainerRef}
+                  className="hero-spline opacity-0 relative flex-1 w-full"
+                  style={{ 
+                    height: "clamp(450px, 80vh, 800px)", 
+                    minWidth: 0, 
+                    maxWidth: "750px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center"
                   }}
                 >
-                  <Spline 
-                    scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode"
-                    onLoad={onSplineLoad}
+                  {/* Cyan glow behind robot */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
                     style={{
-                      width: "150%",
-                      height: "150%",
-                      objectFit: "contain",
-                      transform: "scale(0.9)",
-                      transformOrigin: "center center"
+                      background: "radial-gradient(ellipse at 50% 50%, rgba(0,255,255,0.12) 0%, rgba(0,255,255,0.05) 40%, transparent 80%)",
+                      zIndex: 0,
+                      borderRadius: "50%",
+                      transform: "scale(1.2)"
                     }}
                   />
+                  
+                  {/* Spline Robot Container */}
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      marginLeft: "10%",
+                      position: "relative",
+                      zIndex: 1,
+                      filter: "hue-rotate(180deg) saturate(1.8) brightness(1.1) drop-shadow(0 0 40px rgba(0,255,255,0.4))",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}
+                  >
+                    <Spline 
+                      scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode"
+                      onLoad={onSplineLoad}
+                      style={{
+                        width: "150%",
+                        height: "150%",
+                        objectFit: "contain",
+                        transform: "scale(0.9)",
+                        transformOrigin: "center center"
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
           </div>
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10">
+      {/* Scroll indicator - Hidden on mobile */}
+      <div className="max-sm:hidden hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10">
         <span className="text-xs tracking-widest" style={{ color: "#555" }}>Scroll to explore</span>
         <svg className="w-5 h-5 animate-scroll-bounce" fill="none" stroke="#00FFFF" strokeWidth="2" viewBox="0 0 24 24">
           <path d="M12 5v14M5 12l7 7 7-7" />
