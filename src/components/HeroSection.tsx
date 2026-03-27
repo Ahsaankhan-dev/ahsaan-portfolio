@@ -24,21 +24,7 @@ const HeroSection = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // ✅ WebGL support check — crash nahi hoga
-    const testCtx = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-    if (!testCtx) {
-      console.warn("WebGL not supported — skipping 3D background.");
-      return;
-    }
-
-    let renderer: THREE.WebGLRenderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: "low-power" });
-    } catch (e) {
-      console.warn("WebGLRenderer failed:", e);
-      return;
-    }
-
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
     rendererRef.current = renderer;
