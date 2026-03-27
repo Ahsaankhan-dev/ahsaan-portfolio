@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Spline from "@splinetool/react-spline";
 import * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import SafeSpline from "./SafeSpline";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,15 +21,20 @@ const HeroSection = () => {
   const [subtitle, setSubtitle] = useState("");
   const [showCursor, setShowCursor] = useState(false);
 
+  // ── Three.js Background Scene ──
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
     const testCtx = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
     if (!testCtx) return;
+
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: "low-power" });
-    } catch (e) { return; }
+    } catch (e) {
+      return;
+    }
 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -44,12 +49,14 @@ const HeroSection = () => {
       new THREE.MeshPhongMaterial({ color: 0x00ffff, wireframe: true, opacity: 0.18, transparent: true })
     );
     scene.add(ico);
+
     const torus1 = new THREE.Mesh(
       new THREE.TorusGeometry(2.7, 0.45, 8, 70),
       new THREE.MeshPhongMaterial({ color: 0x9333ea, wireframe: true, opacity: 0.08, transparent: true })
     );
     torus1.rotation.x = Math.PI / 2.4;
     scene.add(torus1);
+
     const torus2 = new THREE.Mesh(
       new THREE.TorusGeometry(1.9, 0.15, 6, 55),
       new THREE.MeshPhongMaterial({ color: 0x00ffff, wireframe: true, opacity: 0.08, transparent: true })
@@ -92,6 +99,7 @@ const HeroSection = () => {
       my = (e.clientY / window.innerHeight - 0.5) * 2;
     };
     window.addEventListener("mousemove", onMouse);
+
     const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -125,20 +133,28 @@ const HeroSection = () => {
     };
   }, []);
 
+  // ── GSAP Animations ──
   useEffect(() => {
     const tl = gsap.timeline({ delay: 0.4 });
+
     tl.fromTo(".hero-badge", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4 });
     tl.fromTo(".hero-hello", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.4 }, "-=0.2");
     tl.fromTo(".hero-m", { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.5, ease: "bounce.out" });
+
     tl.add(() => {
       const target = "AHSAAN";
       let iteration = 0;
       const interval = setInterval(() => {
-        setAhsaanText(target.split("").map((c, i) => i < iteration ? c : SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)]).join(""));
+        setAhsaanText(
+          target.split("").map((c, i) =>
+            i < iteration ? c : SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)]
+          ).join("")
+        );
         if (iteration >= target.length) clearInterval(interval);
         iteration += 0.15;
       }, 30);
     });
+
     tl.fromTo(".hero-subtitle-wrap", { opacity: 0 }, { opacity: 1, duration: 0.5 }, "+=0.5");
     tl.add(() => {
       const text = "A Full Stack DEVELOPER & ENGINEER";
@@ -150,34 +166,76 @@ const HeroSection = () => {
         if (i >= text.length) clearInterval(interval);
       }, 50);
     }, "+=0.2");
+
     tl.fromTo(".hero-buttons", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.7)" }, "+=0.3");
     tl.fromTo(".hero-scroll", { opacity: 0 }, { opacity: 1, duration: 0.5 }, "-=0.2");
     tl.fromTo(".hero-spline", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.8, ease: "power2.out" }, "-=0.8");
 
-    gsap.to(".hero-m", { x: -40, scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 } });
-    gsap.to(".hero-ahsaan", { x: 40, scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 } });
-    gsap.to(".hero-spline", { y: 60, scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 } });
+    gsap.to(".hero-m", {
+      x: -40,
+      scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
+    });
+    gsap.to(".hero-ahsaan", {
+      x: 40,
+      scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
+    });
+    gsap.to(".hero-spline", {
+      y: 60,
+      scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: 1 },
+    });
 
     return () => { tl.kill(); };
   }, []);
 
+  // Spline load hone ke baad scale adjust karne ke liye
   const onSplineLoad = (splineApp: any) => {
     try {
+      // Spline object ko access karke zoom/position adjust karna
+      if (splineApp && splineApp._object) {
+        const obj = splineApp._object;
+        
+        // Camera zoom out karne ke liye
+        if (obj.camera) {
+          // Agar camera available hai toh zoom out
+          if (obj.camera.zoom) {
+            obj.camera.zoom = 0.7; // Zoom out
+            obj.camera.updateProjectionMatrix();
+          }
+          
+          // Camera position adjust
+          if (obj.camera.position) {
+            obj.camera.position.z = 8; // Camera door le jao
+            obj.camera.position.y = 1;
+          }
+        }
+        
+        // Scene scale adjust
+        if (obj.scene) {
+          obj.scene.scale.set(0.8, 0.8, 0.8);
+          obj.scene.position.y = -0.5;
+        }
+      }
+      
+      // Alternative: container mein zoom effect
       if (splineContainerRef.current) {
         splineContainerRef.current.style.transform = "scale(0.85)";
         splineContainerRef.current.style.transformOrigin = "center center";
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log("Spline adjustment error:", error);
+    }
   };
 
   return (
     <section ref={sectionRef} id="hero" className="relative min-h-screen overflow-hidden">
 
+      {/* Three.js Canvas */}
       <canvas
         ref={canvasRef}
         style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}
       />
 
+      {/* Dark gradient overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -186,34 +244,32 @@ const HeroSection = () => {
         }}
       />
 
+      {/* Main layout */}
       <div className="relative z-10 flex items-center min-h-screen pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-8 min-h-[calc(100vh-4rem)]">
+        <div className="max-w-7xl mx-auto px-6 w-full">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 min-h-[calc(100vh-4rem)]">
 
-            {/* LEFT — Text */}
-            <div className="max-w-lg w-full flex-shrink-0 pt-12 pb-4 lg:py-0 z-20 text-center lg:text-left">
-
+            {/* ── LEFT — Text Content ── */}
+            <div className="max-w-lg w-full flex-shrink-0 py-16 md:py-0 z-20">
               <div
-                className="hero-badge inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium mb-4 sm:mb-6 opacity-0"
+                className="hero-badge inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium mb-6 opacity-0"
                 style={{ border: "1px solid #1a1a1a", color: "#888" }}
               >
-                <span className="w-2 h-2 rounded-full" style={{ background: "#22c55e" }} />
-                AVAILABLE FOR WORK
               </div>
 
-              <div className="hero-hello text-base sm:text-lg mb-1 sm:mb-2 opacity-0" style={{ color: "#00FFFF" }}>
+              <div className="hero-hello text-lg mb-2 opacity-0" style={{ color: "#00FFFF" }}>
                 Hello! I&apos;m
               </div>
 
-              <h1 className="hero-m text-[64px] sm:text-[80px] md:text-[100px] lg:text-[120px] font-black leading-none opacity-0" style={{ color: "#fff" }}>
+              <h1 className="hero-m text-[80px] md:text-[120px] font-black leading-none opacity-0" style={{ color: "#fff" }}>
                 M
               </h1>
 
-              <h1 className="hero-ahsaan text-[64px] sm:text-[80px] md:text-[100px] lg:text-[120px] font-black leading-none text-glow-cyan" style={{ color: "#00FFFF" }}>
+              <h1 className="hero-ahsaan text-[80px] md:text-[120px] font-black leading-none text-glow-cyan" style={{ color: "#00FFFF" }}>
                 {ahsaanText}
               </h1>
 
-              <div className="hero-subtitle-wrap mt-3 sm:mt-4 text-base sm:text-lg md:text-xl opacity-0">
+              <div className="hero-subtitle-wrap mt-4 text-lg md:text-xl opacity-0">
                 <span className={showCursor ? "typing-cursor" : ""}>
                   {subtitle.split(/(\bDEVELOPER\b|\bENGINEER\b|&)/).map((part, i) =>
                     part === "DEVELOPER" || part === "ENGINEER" ? (
@@ -227,50 +283,74 @@ const HeroSection = () => {
                 </span>
               </div>
 
-              <div className="hero-buttons flex gap-3 sm:gap-4 mt-6 sm:mt-8 opacity-0 justify-center lg:justify-start">
+              <div className="hero-buttons flex gap-4 mt-8 opacity-0">
                 <a
                   href="#work"
-                  className="magnetic-btn px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold tracking-wider transition-all duration-300 hover:bg-site-cyan hover:text-black"
+                  className="magnetic-btn px-6 py-3 rounded-lg text-sm font-semibold tracking-wider transition-all duration-300 hover:bg-site-cyan hover:text-black"
                   style={{ border: "1px solid #1a1a1a", color: "#fff" }}
                 >
                   VIEW WORK ↓
                 </a>
                 <a
                   href="#contact"
-                  className="magnetic-btn px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold tracking-wider transition-all duration-300 hover:opacity-90"
+                  className="magnetic-btn px-6 py-3 rounded-lg text-sm font-semibold tracking-wider transition-all duration-300 hover:opacity-90"
                   style={{ background: "#00FFFF", color: "#080808" }}
                 >
                   RESUME →
                 </a>
               </div>
 
-              <div className="mt-8 sm:mt-12 text-xs" style={{ color: "#555" }}>© 2026</div>
+              <div className="mt-12 text-xs" style={{ color: "#555" }}>© 2026</div>
             </div>
 
-            {/* RIGHT — Spline (hidden on mobile, visible on lg+) */}
+            {/* ── RIGHT — Spline Robot (Fixed Zoom & Cutoff Issue) ── */}
             <div
               ref={splineContainerRef}
-              className="hero-spline opacity-0 relative w-full lg:flex-1 hidden sm:flex items-center justify-center"
-              style={{ height: "clamp(350px, 70vh, 800px)", maxWidth: "750px" }}
+              className="hero-spline opacity-0 relative flex-1 w-full"
+              style={{ 
+                height: "clamp(450px, 80vh, 800px)", 
+                minWidth: 0, 
+                maxWidth: "750px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
             >
+              {/* Cyan glow behind robot - Extended for better visibility */}
               <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
                   background: "radial-gradient(ellipse at 50% 50%, rgba(0,255,255,0.12) 0%, rgba(0,255,255,0.05) 40%, transparent 80%)",
                   zIndex: 0,
+                  borderRadius: "50%",
+                  transform: "scale(1.2)"
                 }}
               />
+              
+              {/* Spline Robot Container with proper sizing */}
               <div
                 style={{
-                  width: "100%", height: "100%",
-                  position: "relative", zIndex: 1,
+                  width: "100%",
+                  height: "100%",
+                  marginLeft: "10%",
+                  position: "relative",
+                  zIndex: 1,
                   filter: "hue-rotate(180deg) saturate(1.8) brightness(1.1) drop-shadow(0 0 40px rgba(0,255,255,0.4))",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
                 }}
               >
-                <SafeSpline
+                <Spline 
                   scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode"
                   onLoad={onSplineLoad}
-                  style={{ width: "100%", height: "100%" }}
+                  style={{
+                    width: "150%",
+                    height: "150%",
+                    objectFit: "contain",
+                    transform: "scale(0.9)",
+                    transformOrigin: "center center"
+                  }}
                 />
               </div>
             </div>
@@ -279,6 +359,7 @@ const HeroSection = () => {
         </div>
       </div>
 
+      {/* Scroll indicator */}
       <div className="hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10">
         <span className="text-xs tracking-widest" style={{ color: "#555" }}>Scroll to explore</span>
         <svg className="w-5 h-5 animate-scroll-bounce" fill="none" stroke="#00FFFF" strokeWidth="2" viewBox="0 0 24 24">
@@ -286,11 +367,31 @@ const HeroSection = () => {
         </svg>
       </div>
 
+      {/* Add custom CSS for animations */}
       <style jsx>{`
-        @keyframes scroll-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
-        .animate-scroll-bounce { animation: scroll-bounce 2s infinite; }
-        .typing-cursor::after { content: '|'; animation: blink 1s infinite; margin-left: 2px; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes scroll-bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(10px); }
+        }
+        .animate-scroll-bounce {
+          animation: scroll-bounce 2s infinite;
+        }
+        .blink-green {
+          animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        .typing-cursor::after {
+          content: '|';
+          animation: blink 1s infinite;
+          margin-left: 2px;
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
       `}</style>
     </section>
   );
