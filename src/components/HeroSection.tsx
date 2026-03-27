@@ -5,6 +5,7 @@ import Spline from "@splinetool/react-spline";
 import * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,6 +17,7 @@ const HeroSection = () => {
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const frameRef = useRef<number>(0);
   const splineContainerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   const [ahsaanText, setAhsaanText] = useState("AHSAAN");
   const [subtitle, setSubtitle] = useState("");
@@ -190,34 +192,28 @@ const HeroSection = () => {
   // Spline load hone ke baad scale adjust karne ke liye
   const onSplineLoad = (splineApp: any) => {
     try {
-      // Spline object ko access karke zoom/position adjust karna
       if (splineApp && splineApp._object) {
         const obj = splineApp._object;
         
-        // Camera zoom out karne ke liye
         if (obj.camera) {
-          // Agar camera available hai toh zoom out
           if (obj.camera.zoom) {
-            obj.camera.zoom = 0.7; // Zoom out
+            obj.camera.zoom = 0.7;
             obj.camera.updateProjectionMatrix();
           }
           
-          // Camera position adjust
           if (obj.camera.position) {
-            obj.camera.position.z = 8; // Camera door le jao
+            obj.camera.position.z = 8;
             obj.camera.position.y = 1;
           }
         }
         
-        // Scene scale adjust
         if (obj.scene) {
           obj.scene.scale.set(0.8, 0.8, 0.8);
           obj.scene.position.y = -0.5;
         }
       }
       
-      // Alternative: container mein zoom effect
-      if (splineContainerRef.current) {
+      if (splineContainerRef.current && !isMobile) {
         splineContainerRef.current.style.transform = "scale(0.85)";
         splineContainerRef.current.style.transformOrigin = "center center";
       }
@@ -303,57 +299,59 @@ const HeroSection = () => {
               <div className="mt-12 text-xs" style={{ color: "#555" }}>© 2026</div>
             </div>
 
-            {/* ── RIGHT — Spline Robot (Fixed Zoom & Cutoff Issue) ── */}
-            <div
-              ref={splineContainerRef}
-              className="hero-spline opacity-0 relative flex-1 w-full"
-              style={{ 
-                height: "clamp(450px, 80vh, 800px)", 
-                minWidth: 0, 
-                maxWidth: "750px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center"
-              }}
-            >
-              {/* Cyan glow behind robot - Extended for better visibility */}
+            {/* ── RIGHT — Spline Robot - Hidden on mobile, visible on desktop ── */}
+            {!isMobile && (
               <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background: "radial-gradient(ellipse at 50% 50%, rgba(0,255,255,0.12) 0%, rgba(0,255,255,0.05) 40%, transparent 80%)",
-                  zIndex: 0,
-                  borderRadius: "50%",
-                  transform: "scale(1.2)"
-                }}
-              />
-              
-              {/* Spline Robot Container with proper sizing */}
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  marginLeft: "10%",
-                  position: "relative",
-                  zIndex: 1,
-                  filter: "hue-rotate(180deg) saturate(1.8) brightness(1.1) drop-shadow(0 0 40px rgba(0,255,255,0.4))",
+                ref={splineContainerRef}
+                className="hero-spline opacity-0 relative flex-1 w-full"
+                style={{ 
+                  height: "clamp(450px, 80vh, 800px)", 
+                  minWidth: 0, 
+                  maxWidth: "750px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center"
                 }}
               >
-                <Spline 
-                  scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode"
-                  onLoad={onSplineLoad}
+                {/* Cyan glow behind robot */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
                   style={{
-                    width: "150%",
-                    height: "150%",
-                    objectFit: "contain",
-                    transform: "scale(0.9)",
-                    transformOrigin: "center center"
+                    background: "radial-gradient(ellipse at 50% 50%, rgba(0,255,255,0.12) 0%, rgba(0,255,255,0.05) 40%, transparent 80%)",
+                    zIndex: 0,
+                    borderRadius: "50%",
+                    transform: "scale(1.2)"
                   }}
                 />
+                
+                {/* Spline Robot Container */}
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    marginLeft: "10%",
+                    position: "relative",
+                    zIndex: 1,
+                    filter: "hue-rotate(180deg) saturate(1.8) brightness(1.1) drop-shadow(0 0 40px rgba(0,255,255,0.4))",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <Spline 
+                    scene="https://prod.spline.design/tz1kyK0fNLIQojVA/scene.splinecode"
+                    onLoad={onSplineLoad}
+                    style={{
+                      width: "150%",
+                      height: "150%",
+                      objectFit: "contain",
+                      transform: "scale(0.9)",
+                      transformOrigin: "center center"
+                    }}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
           </div>
         </div>
