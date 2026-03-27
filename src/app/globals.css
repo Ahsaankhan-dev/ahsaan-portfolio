@@ -38,6 +38,7 @@
   }
 }
 
+/* ─── Reset ──────────────────────────────────────────────────────────────────*/
 * {
   cursor: none !important;
   margin: 0;
@@ -47,6 +48,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Prevent layout shifts from scrollbar appearing */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -54,31 +57,61 @@ body {
   background: var(--site-bg);
   color: var(--site-text);
   overflow-x: hidden;
+  /* Hint to browser that body is a scroll container */
+  overscroll-behavior: none;
 }
 
+/* ─── Selection ──────────────────────────────────────────────────────────────*/
 ::selection {
   background: rgba(0, 255, 255, 0.3);
   color: #fff;
 }
 
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────*/
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #080808; }
 ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #00FFFF; }
 
+/* ─── GPU compositing hints ──────────────────────────────────────────────────
+   These elements animate via GSAP (transform/opacity only).
+   Promoting them to their own compositor layer avoids main-thread repaints.    */
+.hero-m,
+.hero-ahsaan,
+.hero-spline,
+.hero-badge,
+.hero-hello,
+.hero-subtitle-wrap,
+.hero-buttons,
+.hero-scroll {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.tilt-card {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Each section is visually isolated — browser can skip repainting siblings */
+section {
+  contain: layout style;
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────────*/
 @keyframes glitch {
-  0% { transform: translate(0); text-shadow: -2px 0 #ff0000, 2px 0 #0000ff; }
-  20% { transform: translate(-2px, 2px); text-shadow: 2px 0 #ff0000, -2px 0 #0000ff; }
-  40% { transform: translate(-2px, -2px); text-shadow: 2px 2px #ff0000, -2px -2px #0000ff; }
-  60% { transform: translate(2px, 2px); text-shadow: -2px -2px #ff0000, 2px 2px #0000ff; }
-  80% { transform: translate(2px, -2px); text-shadow: -2px 2px #ff0000, 2px -2px #0000ff; }
-  100% { transform: translate(0); text-shadow: -2px 0 #ff0000, 2px 0 #0000ff; }
+  0%   { transform: translate(0);         text-shadow: -2px 0 #ff0000,  2px 0 #0000ff; }
+  20%  { transform: translate(-2px, 2px); text-shadow:  2px 0 #ff0000, -2px 0 #0000ff; }
+  40%  { transform: translate(-2px,-2px); text-shadow:  2px 2px #ff0000, -2px -2px #0000ff; }
+  60%  { transform: translate( 2px, 2px); text-shadow: -2px -2px #ff0000,  2px  2px #0000ff; }
+  80%  { transform: translate( 2px,-2px); text-shadow: -2px  2px #ff0000,  2px -2px #0000ff; }
+  100% { transform: translate(0);         text-shadow: -2px 0 #ff0000,  2px 0 #0000ff; }
 }
 .glitch-hover:hover { animation: glitch 0.3s ease 3; }
 
 @keyframes blink-cursor {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  50%       { opacity: 0; }
 }
 .typing-cursor::after {
   content: '|';
@@ -88,53 +121,79 @@ body {
 }
 
 .text-glow-cyan {
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 30px rgba(0, 255, 255, 0.3), 0 0 60px rgba(0, 255, 255, 0.1);
+  text-shadow:
+    0 0 10px rgba(0, 255, 255, 0.5),
+    0 0 30px rgba(0, 255, 255, 0.3),
+    0 0 60px rgba(0, 255, 255, 0.1);
 }
 
+/* ─── Tilt card ──────────────────────────────────────────────────────────────*/
 .tilt-card {
   transition: transform 0.1s ease-out, box-shadow 0.3s ease;
   transform-style: preserve-3d;
+  /* Isolate compositing so siblings aren't affected */
+  isolation: isolate;
 }
 
+/* ─── Magnetic button ────────────────────────────────────────────────────────*/
 .magnetic-btn {
   transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
+/* ─── Preloader ──────────────────────────────────────────────────────────────*/
 @keyframes dot-blink {
   0%, 20% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
+  50%      { opacity: 1; }
+  100%     { opacity: 0; }
 }
-.loading-dots span:nth-child(1) { animation: dot-blink 1.4s 0s infinite; }
+.loading-dots span:nth-child(1) { animation: dot-blink 1.4s 0.0s infinite; }
 .loading-dots span:nth-child(2) { animation: dot-blink 1.4s 0.2s infinite; }
 .loading-dots span:nth-child(3) { animation: dot-blink 1.4s 0.4s infinite; }
 
+/* ─── Available-for-work dot ─────────────────────────────────────────────────*/
 @keyframes pulse-green {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50%       { opacity: 0.4; }
 }
 .blink-green { animation: pulse-green 2s infinite; }
 
+/* ─── Contact section grid texture ──────────────────────────────────────────*/
 .grid-texture {
   background-image:
-    repeating-linear-gradient(0deg, rgba(0,255,255,0.03) 0px, transparent 1px, transparent 40px),
+    repeating-linear-gradient(0deg,  rgba(0,255,255,0.03) 0px, transparent 1px, transparent 40px),
     repeating-linear-gradient(90deg, rgba(0,255,255,0.03) 0px, transparent 1px, transparent 40px);
 }
 
+/* ─── Scroll bounce arrow ────────────────────────────────────────────────────*/
 @keyframes scroll-bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
+  50%       { transform: translateY(6px); }
 }
 .animate-scroll-bounce { animation: scroll-bounce 1.5s ease-in-out infinite; }
 
+/* ─── Accessibility: respect reduced-motion ─────────────────────────────────*/
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation-duration:       0.01ms !important;
+    animation-iteration-count: 1     !important;
+    transition-duration:      0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
+/* ─── Mobile: restore default cursor, remove heavy will-change ───────────────*/
 @media (max-width: 768px) {
   * { cursor: auto !important; }
+
+  /* Remove compositor hints on mobile — they cost memory on low-RAM devices */
+  .hero-m,
+  .hero-ahsaan,
+  .hero-spline,
+  .tilt-card {
+    will-change: auto;
+    transform: none;
+  }
+
+  /* Simpler section containment on mobile */
+  section { contain: layout; }
 }
